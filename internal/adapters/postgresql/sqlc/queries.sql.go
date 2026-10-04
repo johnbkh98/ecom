@@ -9,12 +9,12 @@ import (
 	"context"
 )
 
-const findProudctByID = `-- name: FindProudctByID :one
+const findProductById = `-- name: FindProductById :one
 SELECT id, name, price, quantity, created_at FROM products WHERE id = $1
 `
 
-func (q *Queries) FindProudctByID(ctx context.Context, id int64) (Product, error) {
-	row := q.db.QueryRow(ctx, findProudctByID, id)
+func (q *Queries) FindProductById(ctx context.Context, id int64) (Product, error) {
+	row := q.db.QueryRow(ctx, findProductById, id)
 	var i Product
 	err := row.Scan(
 		&i.ID,

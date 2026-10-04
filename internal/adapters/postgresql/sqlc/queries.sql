@@ -5,5 +5,5 @@ SELECT
 FROM
     products;
 
--- name: FindProudctByID :one
+-- name: FindProductById :one
 SELECT * FROM products WHERE id = $1;
