@@ -9,7 +9,7 @@ Run
 `sqlc generate` to generate sql queries to go
 
 ### TO DO (features):
-- [ ] Files rename. e.g productHandlers
+- [x] Files rename. e.g product_handlers to avoid tab ambiguity
 - [ ] Create an endpoint to update product quantity after an order has been placed
 - [ ] Create an endpoint to create products - `r.Create("/product")`
 - [ ] Create a new endpoint to get an order - `r.Get("/order/{order_id}")`
