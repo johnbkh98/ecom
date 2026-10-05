@@ -10,7 +10,7 @@ Run
 
 ### TO DO (features):
 - [x] Files rename. e.g product_handlers to avoid tab ambiguity
-- [ ] Create an endpoint to update product quantity after an order has been placed
+- [ ] update product quantity after an order has been placed
 - [ ] Create an endpoint to create products - `r.Create("/product")`
 - [ ] Create a new endpoint to get an order - `r.Get("/order/{order_id}")`
 - [ ] Create a new endpoint to get all orders - `r.Get("/orders")`
