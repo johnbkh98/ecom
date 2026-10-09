@@ -16,3 +16,9 @@ INSERT INTO orders (
 -- name: CreateOrderItem :one
 INSERT INTO order_items (order_id, product_id, quantity, price)
 VALUES ($1, $2, $3, $4) RETURNING *;
+
+-- name: UpdateProductQuantity :execrows
+UPDATE products
+SET quantity = quantity - $1
+WHERE id = $2
+AND quantity >= $1;
