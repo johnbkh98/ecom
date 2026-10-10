@@ -1,11 +1,14 @@
 // Package testdb provides a shared helper for integration tests that need a
 // real database. It connects to the test database, applies pending migrations,
-// and truncates all tables so each test starts from a clean state.
+// and truncates all tables so each test starts from a clean state. A Factory
+// (see NewFactory) then inserts test data on that pool.
 //
 // Usage:
 //
 //	func TestSomething(t *testing.T) {
 //	    pool := testdb.New(t, "../adapters/postgresql/migrations")
+//	    f := testdb.NewFactory(t, pool)
+//	    product := f.Product(testdb.WithName("widget"))
 //	    q := repo.New(pool)
 //	    // ...
 //	}

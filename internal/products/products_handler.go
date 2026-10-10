@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 	"github.com/johnbkh98/ecom/internal/json"
 )
 
@@ -27,6 +28,11 @@ func (handler *handler) ListProducts(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	// A nil slice would be encoded as `null`; clients expect an empty array.
+	if products == nil {
+		products = []repo.Product{}
 	}
 
 	json.Write(w, http.StatusOK, products)
