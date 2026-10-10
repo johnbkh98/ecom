@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 )
 
@@ -16,10 +16,10 @@ var (
 
 type svc struct {
 	repo *repo.Queries
-	db   *pgx.Conn
+	db   *pgxpool.Pool
 }
 
-func NewService(repo *repo.Queries, db *pgx.Conn) Service {
+func NewService(repo *repo.Queries, db *pgxpool.Pool) Service {
 	return &svc{
 		repo: repo,
 		db:   db,

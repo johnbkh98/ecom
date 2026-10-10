@@ -2,11 +2,10 @@ package main
 
 import (
 	"context"
-	"log"
 	"log/slog"
 	"os"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/johnbkh98/ecom/internal/env"
 )
@@ -26,11 +25,15 @@ func main() {
 	slog.SetDefault(logger)
 
 	// Database
-	conn, err := pgx.Connect(ctx, cfg.db.dsn)
+	conn, err := pgxpool.New(ctx, cfg.db.dsn)
 	if err != nil {
 		panic(err)
 	}
-	defer conn.Close(ctx)
+	defer conn.Close()
+
+	if err := conn.Ping(ctx); err != nil {
+		panic(err)
+	}
 
 	logger.Info("Connected to database", "dsn", cfg.db.dsn)
 
@@ -40,8 +43,7 @@ func main() {
 	}
 
 	if err := api.run(api.mount()); err != nil {
-		log.Printf("Server has failed to start, err: %s", err)
-		slog.Error("Server failerd to start", "error", err)
+		slog.Error("Server failed to start", "error", err)
 		os.Exit(1)
 	}
 }

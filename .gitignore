@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+!.env.test.example
+
+# Binaries / build output
+/ecom
+/bin/
+dist/
+
+# Test artifacts
+*.out
+coverage.html
