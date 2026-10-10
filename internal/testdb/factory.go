@@ -3,9 +3,7 @@ package testdb
 import (
 	"fmt"
 	"testing"
-	"time"
 
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
@@ -53,30 +51,27 @@ func WithQuantity(quantity int32) ProductOption {
 }
 
 // Product inserts a product with test-friendly defaults and returns the row
-// as stored, including the DB-assigned id. Defaults: a unique name
-// ("product-N", so bulk-created rows never collide), price 1000, quantity 10
-// and the current time as created_at. The test fails on any insert error.
+// as stored, including the DB-assigned id and DB-generated created_at
+// (DEFAULT now()). Defaults: a unique name ("product-N", so bulk-created rows
+// never collide), price 1000 and quantity 10. The test fails on any insert
+// error.
 func (f *Factory) Product(opts ...ProductOption) repo.Product {
 	f.t.Helper()
 
 	f.seq++
 	p := repo.Product{
-		Name:      fmt.Sprintf("product-%d", f.seq),
-		Price:     1000,
-		Quantity:  10,
-		CreatedAt: pgtype.Timestamptz{Time: time.Now(), Valid: true},
+		Name:     fmt.Sprintf("product-%d", f.seq),
+		Price:    1000,
+		Quantity: 10,
 	}
 	for _, opt := range opts {
 		opt(&p)
 	}
 
-	// The CreateProduct query inserts created_at explicitly, and a zero
-	// pgtype.Timestamptz would encode as NULL against a NOT NULL column.
 	stored, err := f.q.CreateProduct(f.t.Context(), repo.CreateProductParams{
-		Name:      p.Name,
-		Quantity:  p.Quantity,
-		CreatedAt: p.CreatedAt,
-		Price:     p.Price,
+		Name:     p.Name,
+		Quantity: p.Quantity,
+		Price:    p.Price,
 	})
 	if err != nil {
 		f.t.Fatalf("factory: insert product %q: %v", p.Name, err)
