@@ -12,7 +12,7 @@ Run
 
 ### TO DO (features):
 - [x] Files rename. e.g product_handlers to avoid tab ambiguity
-- [ ] update product quantity after an order has been placed
+- [x] update product quantity after an order has been placed
 - [ ] Add tests
 - [ ] Add docblocks
 - [ ] Create a setup script that runs neccessary commands that get the project up and running

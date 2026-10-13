@@ -3,7 +3,8 @@
 SELECT
     *
 FROM
-    products;
+    products
+ORDER BY id;
 
 -- name: FindProductById :one
 SELECT * FROM products WHERE id = $1;

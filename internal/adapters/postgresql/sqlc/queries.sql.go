@@ -99,6 +99,7 @@ SELECT
     id, name, price, quantity, created_at
 FROM
     products
+ORDER BY id
 `
 
 func (q *Queries) ListProducts(ctx context.Context) ([]Product, error) {
