@@ -2,6 +2,7 @@ package products
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -38,9 +39,9 @@ Add the following test cases:
 */
 
 func TestListProducts_EmptyWhenThereAreNoProducts(t *testing.T) {
-	// Make request and get the response
 	pool := testdb.New(t, "../adapters/postgresql/migrations")
 
+	// Make request and get the response
 	router := chi.NewRouter()
 	router.Get("/products", NewHandler(NewService(repo.New(pool))).ListProducts)
 
@@ -70,5 +71,25 @@ func TestListProducts_EmptyWhenThereAreNoProducts(t *testing.T) {
 	if len(products) != 0 {
 		t.Errorf("expected no products, got %d: %s", len(products), body)
 	}
+	// make a reuseable function makeRequest?
+}
 
+func TestListProduct_ReturnsProducts(t *testing.T) {
+
+	pool := testdb.New(t, "../adapters/postgresql/migrations")
+	factory := testdb.NewFactory(t, pool)
+	products := factory.Product(3)
+	fmt.Println(products)
+	// Make request and get the response
+	router := chi.NewRouter()
+	router.Get("/products", NewHandler(NewService(repo.New(pool))).ListProducts)
+
+	srv := httptest.NewServer(router)
+	defer srv.Close()
+
+	response, err := http.Get(srv.URL + "/products")
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(response)
 }
