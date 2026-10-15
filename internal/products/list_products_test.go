@@ -22,23 +22,6 @@ func TestMain(m *testing.M) {
 	os.Exit(m.Run())
 }
 
-/**
----------------------------
-TO DO:
----------------------------
-Get rid of all current tests.
-Add the following test cases:
-- TestListProducts_ReturnsEmptyWhenThereAreNoProducts
-	-- this should hit the /products endpoint
-	-- get the response from the endpoint
-	-- assert empty
-- TestListProducts_ReturnListOfProducts
-	-- Creat lets say 3 products
-	-- hit the /products endpoint
-	-- get the response from the endpoint
-	-- assert response contains the 3 products
-*/
-
 func compareProducts(expected, response_data []repo.Product) string {
 	if len(expected) != len(response_data) {
 		return fmt.Sprintf("length: expected %d, response_data %d", len(expected), len(response_data))
