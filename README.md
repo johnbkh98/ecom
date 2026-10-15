@@ -2,11 +2,11 @@ Run
 
 `docker compose up` to start db container
 `go run cmd/*.go` to start application
-`docker compose down` to stop db container
 `goose up` to run migration
 `goose down` to rollback migration
 `goose -s create action_table_name sql` to create a migration eg. `goose -s create create__order_table sql`
 `sqlc generate` to generate sql queries to go
+`docker compose down` to stop db container
 
 `docker exec ecom-postgres psql -U postgres -c 'CREATE DATABASE ecom_test'` - to create test db
 

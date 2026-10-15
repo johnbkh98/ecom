@@ -71,11 +71,24 @@ func (s *svc) PlaceOrder(ctx context.Context, tempOrder createOrderParams) (repo
 			return repo.Order{}, err
 		}
 
-		// Todo: Update the product stock quantity after order has been placed
+		// update product after an order has been placed for an item
+		affected, err := qtx.UpdateProductQuantity(ctx, repo.UpdateProductQuantityParams{
+			Quantity: item.Quantity,
+			ID:       item.ProductID,
+		})
+		if err != nil {
+			return repo.Order{}, err
+		}
+		// guard `quantity >= $1` didn't match — not enough stock (or product gone)
+		if affected == 0 {
+			return repo.Order{}, ErrProductNoStock
+		}
 	}
 
 	// close transaction
-	tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return repo.Order{}, err
+	}
 
 	return order, nil
 }

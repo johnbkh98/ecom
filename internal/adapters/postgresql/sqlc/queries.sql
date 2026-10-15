@@ -21,3 +21,9 @@ VALUES ($1, $2, $3, $4) RETURNING *;
 -- name: CreateProduct :one
 INSERT INTO products (name, quantity, price)
 VALUES ($1, $2, $3) RETURNING *;
+
+-- name: UpdateProductQuantity :execrows
+UPDATE products
+SET quantity = quantity - $1
+WHERE id = $2
+AND quantity >= $1;
