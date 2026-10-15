@@ -113,5 +113,33 @@ func TestListProduct_ReturnsProducts(t *testing.T) {
 	if diff := compareProducts(expected_products, response_products); diff != "" {
 		t.Errorf("products mismatch (-want +got):\n%s", diff)
 	}
-	// Add order by test
+}
+
+func TestProductLists_ChecksOrderOfProduct(t *testing.T) {
+	pool := testdb.New(t, "../adapters/postgresql/migrations")
+	factory := testdb.NewFactory(t, pool)
+	expected_products := factory.Products(3)
+
+	router := chi.NewRouter()
+	router.Get("/products", NewHandler(NewService(repo.New(pool))).ListProducts)
+	srv := httptest.NewServer(router)
+	defer srv.Close()
+
+	response_products := makeRequest(t, srv)
+
+	expected_ids := make([]int64, len(expected_products))
+	for i, p := range expected_products {
+		expected_ids[i] = p.ID
+	}
+
+	response_products_ids := make([]int64, len(expected_products))
+	for i, p := range response_products {
+		response_products_ids[i] = p.ID
+	}
+
+	for i := range response_products_ids {
+		if response_products[i].ID != expected_ids[i] {
+			t.Errorf("Expected products with ID order of %v but recieved %v", expected_ids, response_products_ids)
+		}
+	}
 }
