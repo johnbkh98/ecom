@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
+	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 	"github.com/johnbkh98/ecom/internal/json"
 )
 
@@ -29,6 +30,11 @@ func (handler *handler) ListProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A nil slice would be encoded as `null`; clients expect an empty array.
+	if products == nil {
+		products = []repo.Product{}
+	}
+
 	json.Write(w, http.StatusOK, products)
 }
 
@@ -38,14 +44,12 @@ func (handler *handler) FindProductById(w http.ResponseWriter, r *http.Request) 
 	product_id_int, err_int_conv := strconv.ParseInt(product_id, 10, 64)
 	if err_int_conv != nil {
 		// Handle string converstion to int64 error
-		log.Println(err_int_conv)
-		http.Error(w, "Unable to proccess input", http.StatusInternalServerError)
+		http.Error(w, "Unable to process input.", http.StatusBadRequest)
 		return
 	}
 	product, err_find_product := handler.service.FindProductById(r.Context(), product_id_int)
 	if err_find_product != nil {
 		// Handle error when finding product
-		log.Println(err_find_product)
 		http.Error(w, "Unable to find product.", http.StatusNotFound)
 		return
 	}

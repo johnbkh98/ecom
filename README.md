@@ -8,10 +8,14 @@ Run
 `sqlc generate` to generate sql queries to go
 `docker compose down` to stop db container
 
+`docker exec ecom-postgres psql -U postgres -c 'CREATE DATABASE ecom_test'` - to create test db
+
 ### TO DO (features):
 - [x] Files rename. e.g product_handlers to avoid tab ambiguity
-- [x] update product quantity after an order has been placed - user observer pattern
+- [x] update product quantity after an order has been placed
 - [ ] Add tests
+- [ ] Add docblocks
+- [ ] Create a setup script that runs neccessary commands that get the project up and running
 - [ ] Create an endpoint to create products - `r.Create("/product")`
 - [ ] Create a new endpoint to get an order - `r.Get("/order/{order_id}")`
 - [ ] Create a new endpoint to get all orders - `r.Get("/orders")`

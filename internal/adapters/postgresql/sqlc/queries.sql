@@ -3,7 +3,8 @@
 SELECT
     *
 FROM
-    products;
+    products
+ORDER BY id;
 
 -- name: FindProductById :one
 SELECT * FROM products WHERE id = $1;
@@ -16,6 +17,10 @@ INSERT INTO orders (
 -- name: CreateOrderItem :one
 INSERT INTO order_items (order_id, product_id, quantity, price)
 VALUES ($1, $2, $3, $4) RETURNING *;
+
+-- name: CreateProduct :one
+INSERT INTO products (name, quantity, price)
+VALUES ($1, $2, $3) RETURNING *;
 
 -- name: UpdateProductQuantity :execrows
 UPDATE products

@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 	"github.com/johnbkh98/ecom/internal/orders"
 	"github.com/johnbkh98/ecom/internal/products"
@@ -63,7 +63,7 @@ func (app *application) run(handler http.Handler) error {
 type application struct {
 	config config
 	// logger
-	db *pgx.Conn
+	db *pgxpool.Pool
 }
 
 type config struct {
