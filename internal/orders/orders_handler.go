@@ -1,7 +1,6 @@
 package orders
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/johnbkh98/ecom/internal/json"
@@ -20,21 +19,17 @@ func NewHandler(service Service) *handler {
 func (h *handler) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 	var tempOrder createOrderParams
 	if err := json.Read(r, &tempOrder); err != nil {
-		log.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	createdOrder, err := h.service.PlaceOrder(r.Context(), tempOrder)
 	if err != nil {
-		log.Println(err)
-
 		if err == ErrProductNotFound {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return
 		}
-
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

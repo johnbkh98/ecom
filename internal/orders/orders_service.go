@@ -3,23 +3,24 @@ package orders
 import (
 	"context"
 	"errors"
-	"fmt"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 )
 
 var (
-	ErrProductNotFound = errors.New("product not found")
-	ErrProductNoStock  = errors.New("product does not have not enough stock")
+	ErrProductNotFound    = errors.New("product not found")
+	ErrProductNoStock     = errors.New("product does not have not enough stock")
+	ErrCustomerIDRequired = errors.New("Customer ID is required.")
+	ErrItemRequired       = errors.New("At least one item is required.")
 )
 
 type svc struct {
 	repo *repo.Queries
-	db   *pgx.Conn
+	db   *pgxpool.Pool
 }
 
-func NewService(repo *repo.Queries, db *pgx.Conn) Service {
+func NewService(repo *repo.Queries, db *pgxpool.Pool) Service {
 	return &svc{
 		repo: repo,
 		db:   db,
@@ -28,11 +29,11 @@ func NewService(repo *repo.Queries, db *pgx.Conn) Service {
 
 func (s *svc) PlaceOrder(ctx context.Context, tempOrder createOrderParams) (repo.Order, error) {
 	// validate payload
-	if tempOrder.CustomerID == 0 {
-		return repo.Order{}, fmt.Errorf("customer ID is required")
+	if tempOrder.CustomerID < 1 {
+		return repo.Order{}, ErrCustomerIDRequired
 	}
 	if len(tempOrder.Items) == 0 {
-		return repo.Order{}, fmt.Errorf("at least one item is required")
+		return repo.Order{}, ErrItemRequired
 	}
 
 	tx, err := s.db.Begin(ctx)
