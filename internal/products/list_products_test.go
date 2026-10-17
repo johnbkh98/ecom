@@ -6,21 +6,14 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 	"github.com/johnbkh98/ecom/internal/testdb"
 )
-
-// TestMain is a placeholder for package-level test setup (e.g. a shared test
-// database). Note: m.Run() must be called — without it the test binary exits
-// immediately and no tests in this package ever execute.
-func TestMain(m *testing.M) {
-	os.Exit(m.Run())
-}
 
 func compareProducts(expected, response_data []repo.Product) string {
 	if len(expected) != len(response_data) {
@@ -62,13 +55,17 @@ func makeRequest(t *testing.T, srv *httptest.Server) []repo.Product {
 	return products
 }
 
-func TestListProducts_EmptyWhenThereAreNoProducts(t *testing.T) {
+func makeServerForListProducts(t *testing.T) (*httptest.Server, *pgxpool.Pool) {
 	pool := testdb.New(t, "../adapters/postgresql/migrations")
-
-	// Make request and get the response
 	router := chi.NewRouter()
 	router.Get("/products", NewHandler(NewService(repo.New(pool))).ListProducts)
 	srv := httptest.NewServer(router)
+
+	return srv, pool
+}
+
+func TestListProducts_EmptyWhenThereAreNoProducts(t *testing.T) {
+	srv, _ := makeServerForListProducts(t)
 	defer srv.Close()
 
 	response_products := makeRequest(t, srv)
@@ -78,16 +75,11 @@ func TestListProducts_EmptyWhenThereAreNoProducts(t *testing.T) {
 }
 
 func TestListProduct_ReturnsProducts(t *testing.T) {
+	srv, pool := makeServerForListProducts(t)
+	defer srv.Close()
 
-	// create products
-	pool := testdb.New(t, "../adapters/postgresql/migrations")
 	factory := testdb.NewFactory(t, pool)
 	expected_products := factory.Products(3)
-
-	router := chi.NewRouter()
-	router.Get("/products", NewHandler(NewService(repo.New(pool))).ListProducts)
-	srv := httptest.NewServer(router)
-	defer srv.Close()
 
 	response_products := makeRequest(t, srv)
 
@@ -99,14 +91,11 @@ func TestListProduct_ReturnsProducts(t *testing.T) {
 }
 
 func TestProductLists_ChecksOrderOfProduct(t *testing.T) {
-	pool := testdb.New(t, "../adapters/postgresql/migrations")
+	srv, pool := makeServerForListProducts(t)
+	defer srv.Close()
+
 	factory := testdb.NewFactory(t, pool)
 	expected_products := factory.Products(3)
-
-	router := chi.NewRouter()
-	router.Get("/products", NewHandler(NewService(repo.New(pool))).ListProducts)
-	srv := httptest.NewServer(router)
-	defer srv.Close()
 
 	response_products := makeRequest(t, srv)
 

@@ -89,9 +89,9 @@ func TestFindProductById_ReturnsErrorWhenProductIdCanNotBeProcessed(t *testing.T
 
 func TestFindProductById_ReturnsProduct(t *testing.T) {
 	srv, pool := setupTestServerForFindProductById(t)
+	defer srv.Close()
 	factory := testdb.NewFactory(t, pool)
 	expected_product := factory.Product()
-	defer srv.Close()
 
 	response := makeRequestForFindProduct(t, srv, strconv.FormatInt(expected_product.ID, 10))
 	if response.Status != http.StatusOK {
