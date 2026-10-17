@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	repo "github.com/johnbkh98/ecom/internal/adapters/postgresql/sqlc"
 	"github.com/johnbkh98/ecom/internal/testdb"
 )
@@ -44,15 +45,19 @@ func makeRequestForFindProduct(t *testing.T, srv *httptest.Server, product_id st
 	return results
 }
 
-func TestFindProductById_ReturnsErrorWhenProductIdDoesNotExist(t *testing.T) {
+func setupTestServerForFindProductById(t *testing.T) (*httptest.Server, *pgxpool.Pool) {
 	pool := testdb.New(t, "../adapters/postgresql/migrations")
-	non_existence_product_id := "999"
 	router := chi.NewRouter()
 	router.Get("/product/{product_id}", NewHandler(NewService(repo.New(pool))).FindProductById)
 	srv := httptest.NewServer(router)
+	return srv, pool
+}
+
+func TestFindProductById_ReturnsErrorWhenProductIdDoesNotExist(t *testing.T) {
+	srv, _ := setupTestServerForFindProductById(t)
 	defer srv.Close()
 
-	response := makeRequestForFindProduct(t, srv, non_existence_product_id)
+	response := makeRequestForFindProduct(t, srv, "999")
 	if response.Status != http.StatusNotFound {
 		t.Errorf("Expected status code 404 but received: %v", response.Status)
 	}
@@ -65,15 +70,11 @@ func TestFindProductById_ReturnsErrorWhenProductIdDoesNotExist(t *testing.T) {
 	}
 }
 
-func TestFindProductById_ReturnsErrorWhenProductIdCanNotBeprocessed(t *testing.T) {
-	pool := testdb.New(t, "../adapters/postgresql/migrations")
-	non_existence_product_id := "invalid_product"
-	router := chi.NewRouter()
-	router.Get("/product/{product_id}", NewHandler(NewService(repo.New(pool))).FindProductById)
-	srv := httptest.NewServer(router)
+func TestFindProductById_ReturnsErrorWhenProductIdCanNotBeProcessed(t *testing.T) {
+	srv, _ := setupTestServerForFindProductById(t)
 	defer srv.Close()
 
-	response := makeRequestForFindProduct(t, srv, non_existence_product_id)
+	response := makeRequestForFindProduct(t, srv, "invalid_product")
 	if response.Status != http.StatusBadRequest {
 		t.Errorf("Expected status code %v but received: %v", http.StatusBadRequest, response.Status)
 	}
@@ -87,13 +88,9 @@ func TestFindProductById_ReturnsErrorWhenProductIdCanNotBeprocessed(t *testing.T
 }
 
 func TestFindProductById_ReturnsProduct(t *testing.T) {
-	pool := testdb.New(t, "../adapters/postgresql/migrations")
+	srv, pool := setupTestServerForFindProductById(t)
 	factory := testdb.NewFactory(t, pool)
 	expected_product := factory.Product()
-
-	router := chi.NewRouter()
-	router.Get("/product/{product_id}", NewHandler(NewService(repo.New(pool))).FindProductById)
-	srv := httptest.NewServer(router)
 	defer srv.Close()
 
 	response := makeRequestForFindProduct(t, srv, strconv.FormatInt(expected_product.ID, 10))
